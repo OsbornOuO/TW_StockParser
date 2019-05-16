@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 
 from lxml import etree
 from lxml import html
@@ -17,8 +17,8 @@ class Crawl_Proxy(object):
 
     def Start(self):
         data = self.mongo.Get_Data_From("proxy", {'id': 0})
-        # if datetime.now()-timedelta(hours=6) < data["update_date"]:
-        #     return
+        if datetime.now()-timedelta(hours=6) < data["update_date"]:
+            return
         self.mongo.DropAll("proxy")
         proxy_ip = self.paresrHTML()
         self.mongo.Insert_Data_To("proxy", {

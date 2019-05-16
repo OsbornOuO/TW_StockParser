@@ -1,13 +1,23 @@
 # -*- coding: utf-8 -*-
-from twstock import Stock,realtime
 from services.crawl_proxy import Crawl_Proxy
+from services.crawl_twse import parserTWStock
+from services.store.mongo import MongodbAPI
 
 def main():
-    cp = Crawl_Proxy("http://www.cybersyndrome.net/search.cgi?q=&a=ABCD&f=s&s=new&n=500")
+    cp = Crawl_Proxy(
+        "http://www.cybersyndrome.net/search.cgi?q=&a=ABCD&f=s&s=new&n=500")
     cp.Start()
-    # stock = Stock('3535')                             # 擷取台積電股價
-    # print(stock.fetch_from(2019, 4))
-    # print(realtime.get('3535'))
+
+    m = MongodbAPI()
+    proxy = m.Get_Data_From('proxy', {'id': 0})
+    _proxylist = [{'http': x} for x in proxy['ip']]
+    s = parserTWStock('3535', _proxylist)
+    r = s.get_realtime()
+    o = s.get_oldprice()
+    print(r)
+    print(o)
+    m.Insert_Data_To("Realtime_data",r)
+    m.Insert_Many_Data_To("Daily_data",o)
 
 if __name__ == '__main__':
     main()
