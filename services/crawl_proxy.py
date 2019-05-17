@@ -29,8 +29,8 @@ class Crawl_Proxy(object):
         print("add", len(proxy_ip), "ip")
 
     def paresrHTML(self):
-        p = HtmlRequests(self.source_url)
-        tree = p.get_sourcehtml()
+        p = HtmlRequests()
+        tree = p.get_sourcehtml(self.source_url)
         if tree == None:
             return
         for i in tree.xpath('//div[@id="content"]/script/text()'):
