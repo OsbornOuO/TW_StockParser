@@ -4,16 +4,23 @@ from twstock import Stock, realtime
 from twstock.proxy import RoundRobinProxiesProvider, configure_proxy_provider
 from twstock.proxy import get_proxies
 from datetime import datetime
+from services.store.mongo import MongodbAPI
+
 
 class parserTWStock():
     def __init__(self, stock_number, proxylist):
         self.stock = Stock(stock_number)
         self.stock_number = stock_number
+        self.mongo = MongodbAPI()
         rrpr = RoundRobinProxiesProvider(proxylist)
         configure_proxy_provider(rrpr)
 
     def get_realtime(self):
         tmp = self.get_realtime_original()
+        e = self.mongo.CheckExists(
+            "Realtime_data", self.stock_number + "@"+tmp["info"]["time"])
+        if e:
+            return None
         return {
             "_id": self.stock_number + "@"+tmp["info"]["time"],
             "code": int(self.stock_number),
@@ -34,8 +41,12 @@ class parserTWStock():
         tmp = self.get_oldprice_original()
         data = []
         for x in tmp:
+            e = self.mongo.CheckExists(
+                "Daily_data", self.stock_number + "@"+x.date.strftime("%Y/%m/%d"))
+            if e:
+                continue
             data.append({
-                '_id': self.stock_number +"@"+x.date.strftime("%Y/%m/%d"),
+                '_id': self.stock_number + "@"+x.date.strftime("%Y/%m/%d"),
                 'date': x.date,
                 'capacity': x.capacity,
                 'turnover': x.turnover,
