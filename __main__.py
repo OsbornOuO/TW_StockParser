@@ -10,7 +10,7 @@ def main():
 
     print("Start crawl proxy")
     cp = Crawl_Proxy(
-        "http://www.cybersyndrome.net/search.cgi?q=&a=ABCD&f=s&s=new&n=500")
+        "http://www.cybersyndrome.net/search.cgi?q=&a=AB&f=s&s=new&n=200")
     cp.Start()   
 
     proxy = m.Get_Data_From('proxy', {'id': 0})

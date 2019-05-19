@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from services.parser.html_req import HtmlRequests
+from services.store.mongo import MongodbAPI
+
 import re
 from datetime import datetime
 url = "https://ww2.money-link.com.tw/TWStock/StockTick.aspx?SymId=%d#SubMain"
 
 
 class Money_link():
+    def __init__(self):
+        self.mongo = MongodbAPI()
     def Start(self, stock_num):
         source_url = url % (stock_num)
         return self.parser(stock_num, source_url)
@@ -30,6 +34,8 @@ class Money_link():
             time_tmp = time.split(':')
             date = datetime(now.year, now.month, now.month,
                             int(time_tmp[0]), int(time_tmp[1]), int(time_tmp[2]))
+            if self.mongo.CheckExists("Transaction_details",str(stock_num)+"@"+date.isoformat()):
+                continue
             daily.append({
                 '_id': str(stock_num)+"@"+date.isoformat(),
                 'date': date,
