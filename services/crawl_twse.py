@@ -40,6 +40,9 @@ class parserTWStock():
     def get_oldprice(self):
         tmp = self.get_oldprice_original()
         data = []
+        if tmp == None:
+            print("old price is None")
+            return None
         for x in tmp:
             e = self.mongo.CheckExists(
                 "Daily_data", self.stock_number + "@"+x.date.strftime("%Y/%m/%d"))
@@ -63,12 +66,14 @@ class parserTWStock():
         try:
             tmp = realtime.get(self.stock_number)
             return tmp
-        except:
+        except Exception as e:            
+            print(e.args[0])
             self.get_realtime()
 
     def get_oldprice_original(self):
         try:
-            tmp = self.stock.fetch_from(2019, 5)
+            tmp = self.stock.fetch_from(2019, 1)
             return tmp
-        except:
+        except Exception as e:
+            print(e.args[0])
             self.get_oldprice()

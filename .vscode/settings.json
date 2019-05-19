@@ -1,3 +1,3 @@
 {
-    "python.pythonPath": "ENV/bin/python"
+    "python.pythonPath": "stock_env/bin/python"
 }
