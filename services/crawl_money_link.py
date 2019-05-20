@@ -32,12 +32,17 @@ class Money_link():
             if buying == '--' or selling == '--':
                 continue
             transaction = i.xpath('td[4]/text()')[0]
-            tmp_ups_and_downs = i.xpath('td[5]/text()')[0]
-            re_offset = "[0-9.]{1,4}"
-            ups_and_downs = re.search(re_offset, tmp_ups_and_downs).group(0)
+            tmp_ups_and_downs = i.xpath('td[5]/text()')[0].split(" ")
+            ups_and_downs = ""
+            if len(tmp_ups_and_downs) < 2:
+                ups_and_downs = "0.0"
+            elif tmp_ups_and_downs[0] == "▼":
+                ups_and_downs = "-"+tmp_ups_and_downs[1]
+            elif tmp_ups_and_downs[0] == "▲":
+                ups_and_downs = tmp_ups_and_downs[1]
             stock_volume = i.xpath('td[6]/text()')[0]
             time_tmp = time.split(':')
-            date = datetime(now.year, now.month, now.month,
+            date = datetime(now.year, now.month, now.day,
                             int(time_tmp[0]), int(time_tmp[1]), int(time_tmp[2]))
             if self.mongo.CheckExists("Transaction_details", str(stock_num)+"@"+date.isoformat()):
                 continue

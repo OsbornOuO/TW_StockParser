@@ -11,11 +11,10 @@ import getopt
 
 
 def main():
-    # m = MongodbAPI()
+    m = MongodbAPI()
 
     print("Start crawl proxy")
-    cp = Crawl_Proxy(
-        "http://www.cybersyndrome.net/search.cgi?q=&a=AB&f=s&s=new&n=200")
+    cp = Crawl_Proxy()
     cp.Start()
 
     # s = parserTWStock('3535', _proxylist)
@@ -31,11 +30,11 @@ def main():
     #     print("Insert daily data, count: %d" % (len(o)))
     #     m.Insert_Many_Data_To("Daily_data", o)
 
-    # print("Start daily detail stock")
-    # ml = Money_link().Start(3535)
-    # if len(ml) is not 0:
-    #     print("Insert daily detail stock , count : %d" % (len(ml)))
-    #     m.Insert_Many_Data_To("Transaction_details", ml)
+    print("Start daily detail stock")
+    ml = Money_link().Start(3535)
+    if len(ml) is not 0:
+        print("Insert daily detail stock , count : %d" % (len(ml)))
+        m.Insert_Many_Data_To("Transaction_details", ml)
 
     # try:
     #     opts, args = getopt.getopt(sys.argv[1:], 'stwa', [])

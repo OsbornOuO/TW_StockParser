@@ -9,10 +9,12 @@ import re
 import math
 from datetime import datetime, timedelta
 
+CYBERSYNDROME = "http://www.cybersyndrome.net/search.cgi?q=&a=ABC&f=d&s=new&n=500"
+
 
 class Crawl_Proxy(object):
-    def __init__(self, url):
-        self.source_url = url
+    def __init__(self):
+        self.source_url = CYBERSYNDROME
         self.mongo = MongodbAPI()
 
     def Start(self):
@@ -23,14 +25,14 @@ class Crawl_Proxy(object):
         proxy_ip = self.paresrHTML()
         self.mongo.Insert_Data_To("proxy", {
             "id": 0,
-            "ip": proxy_ip,
+            "iptable": proxy_ip,
             "update_date": datetime.now()
         })
         print("add", len(proxy_ip), "ip")
 
     def paresrHTML(self):
         p = HtmlRequests()
-        tree = p.get_sourcehtml(self.source_url)
+        tree = p.get_sourcehtml_noproxy(self.source_url)
         _as = []
         _ps = []
         if tree == None:
@@ -45,10 +47,14 @@ class Crawl_Proxy(object):
             n = self.decode(_ps_list, arithmetic[0])
             _as = _as_list[n:] + _as_list[0:n]
             break
-        for i in tree.xpath('//div[@id="div_result"]/text()'):
-            print("?",i)
-        return
-        return self.getproxy(_as, _ps_list)
+        headerlist = []
+        for i in tree.xpath('//tr'):
+            headers = {}
+            for j in i.xpath('td[6]/text()'):
+                tmp = j.split(":")
+                headers[tmp[0]] = tmp[1]
+            headerlist.append(headers)
+        return self.getproxy(_as, _ps_list, headerlist)
 
     def decode(self, ps, string):
         divisor = string.split(')')[1].replace('%', '')
@@ -72,14 +78,19 @@ class Crawl_Proxy(object):
                     num += int(i)
         return num % int(divisor)
 
-    def getproxy(self, _as, _ps):
+    def getproxy(self, _as, _ps, headerlist):
         proxy_ip = []
         j = 0
         ip = ""
         for i in range(len(_as)):
             if i % 4 == 3:
                 ip += _as[i]
-                proxy_ip.append(ip+':'+_ps[j])
+                proxy_ip.append({
+                    'ip': {
+                        'http': ip+':'+_ps[j]
+                    },
+                    'headers': headerlist[j]
+                })
                 j += 1
                 ip = ""
                 continue

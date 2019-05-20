@@ -13,18 +13,17 @@ class ProxyProvider():
 
         for _ in range(5):
             try:
-                proxy = m.Get_Data_From('proxy', {'id': 0})
-                self.__proxylist = [{'http': x} for x in proxy['ip']]
+                self.__proxylist = m.Get_Data_From(
+                    'proxy', {'id': 0})["iptable"]
                 break
             except Exception as e:
-                print(e)
                 continue
         else:
-            self.health = False
+            self.__health = False
             print("Get Proxy list from mongo fail")
-        print(self.__proxylist)
-    def get_proxies(self):
-        if self.__health:
+
+    def get_proxy(self):
+        if len(self.__proxylist) != 0:
             return choice(self.__proxylist)
         else:
             None
