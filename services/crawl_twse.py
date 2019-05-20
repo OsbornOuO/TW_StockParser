@@ -12,8 +12,9 @@ class parserTWStock():
         self.stock = Stock(stock_number)
         self.stock_number = stock_number
         self.mongo = MongodbAPI()
-        rrpr = RoundRobinProxiesProvider(proxylist)
-        configure_proxy_provider(rrpr)
+        if proxylist != None:
+            rrpr = RoundRobinProxiesProvider(proxylist)
+            configure_proxy_provider(rrpr)
 
     def get_realtime(self):
         tmp = self.get_realtime_original()

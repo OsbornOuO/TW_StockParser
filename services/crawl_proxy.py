@@ -17,7 +17,7 @@ class Crawl_Proxy(object):
 
     def Start(self):
         data = self.mongo.Get_Data_From("proxy", {'id': 0})
-        if  data is not None and datetime.now()-timedelta(hours=6) < data["update_date"]:
+        if data is not None and datetime.now()-timedelta(hours=6) < data["update_date"]:
             return
         self.mongo.DropAll("proxy")
         proxy_ip = self.paresrHTML()
@@ -31,6 +31,8 @@ class Crawl_Proxy(object):
     def paresrHTML(self):
         p = HtmlRequests()
         tree = p.get_sourcehtml(self.source_url)
+        _as = []
+        _ps = []
         if tree == None:
             return
         for i in tree.xpath('//div[@id="content"]/script/text()'):
@@ -42,12 +44,15 @@ class Crawl_Proxy(object):
             arithmetic = re.findall('\(.*?\)%\d*', i)
             n = self.decode(_ps_list, arithmetic[0])
             _as = _as_list[n:] + _as_list[0:n]
-            return self.getproxy(_as, _ps_list)
+            break
+        for i in tree.xpath('//div[@id="div_result"]/text()'):
+            print("?",i)
+        return
+        return self.getproxy(_as, _ps_list)
 
     def decode(self, ps, string):
         divisor = string.split(')')[1].replace('%', '')
         dividend = string.split(')')[0].replace('(', '')
-        variable = re.findall('ps\[(\d*)\]', dividend)
         num = 0
         for i in dividend.split('+'):
             if "*" in i:
