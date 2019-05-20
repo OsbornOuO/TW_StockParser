@@ -2,26 +2,38 @@
 from services.crawl_proxy import Crawl_Proxy
 from services.crawl_twse import parserTWStock
 from services.store.mongo import MongodbAPI
-from services.store.proxy import ProxyProvider
 from services.crawl_money_link import Money_link
-
+from services.crawl_twse_realtime import TWSE_realtime
 
 import sys
 import getopt
+import threading
+
+
+def money_link(m, ml, stock: str):
+    print("start to parser stock :", stock)
+    data = ml.start(stock)
+    if len(data) is not 0:
+        print("Insert daily detail stock:%s, count : %d" % (stock, len(data)))
+        m.Insert_Many_Data_To("Transaction_details", data)
 
 
 def main():
-    m = MongodbAPI()
+    # stocks = ['3535', '2397', '2316', '2392',
+    #           '2888', '3691', '2385', '2337', '3406']
+    # m = MongodbAPI()
 
-    print("Start crawl proxy")
-    cp = Crawl_Proxy()
-    cp.Start()
+    # print("start crawl proxy")
+    # cp = Crawl_Proxy()
+    # cp.start()
 
+    tr = TWSE_realtime(3535)
+    tr.start()
     # s = parserTWStock('3535', _proxylist)
     # s = parserTWStock('3535', None)
-    # print("Start crawl realtime")
+    # print("start crawl realtime")
     # r = s.get_realtime()
-    # print("Start crawl oldprice")
+    # print("start crawl oldprice")
     # o = s.get_oldprice()
     # if r != None:
     #     print("Insert realtime data ")
@@ -30,11 +42,19 @@ def main():
     #     print("Insert daily data, count: %d" % (len(o)))
     #     m.Insert_Many_Data_To("Daily_data", o)
 
-    print("Start daily detail stock")
-    ml = Money_link().Start(3535)
-    if len(ml) is not 0:
-        print("Insert daily detail stock , count : %d" % (len(ml)))
-        m.Insert_Many_Data_To("Transaction_details", ml)
+    # 每日交易明細
+    # print("start daily detail stock")
+    # threads = []
+    # thread_num = len(stocks)
+    # ml = Money_link()
+    # for i in range(thread_num):
+    #     threads.append(threading.Thread(
+    #         target=money_link, args=(m, ml, stocks[i],)))
+    #     threads[i].start()
+    # for i in range(thread_num):
+    #     threads[i].join()
+    #     print("Done.")
+    # 每日交易明細 結束
 
     # try:
     #     opts, args = getopt.getopt(sys.argv[1:], 'stwa', [])

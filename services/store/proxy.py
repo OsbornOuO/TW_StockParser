@@ -1,29 +1,29 @@
 from .mongo import MongodbAPI
 from random import choice
 
+_proxylist = []
 
-class ProxyProvider():
-    def __init__(self):
-        self.__proxylist = []
-        self.__getProxy()
-        self.__health = True
 
-    def __getProxy(self):
-        m = MongodbAPI()
+def init():
+    m = MongodbAPI()
+    global _proxylist
+    for _ in range(5):
+        try:
+            _proxylist = m.Get_Data_From(
+                'proxy', {'id': 0})["iptable"]
+            break
+        except Exception as e:
+            continue
+    else:
+        print("Get Proxy list from mongo fail")
 
-        for _ in range(5):
-            try:
-                self.__proxylist = m.Get_Data_From(
-                    'proxy', {'id': 0})["iptable"]
-                break
-            except Exception as e:
-                continue
-        else:
-            self.__health = False
-            print("Get Proxy list from mongo fail")
 
-    def get_proxy(self):
-        if len(self.__proxylist) != 0:
-            return choice(self.__proxylist)
-        else:
-            None
+def get_proxy() -> dict:
+    global _proxylist
+    if len(_proxylist) != 0:
+        return choice(_proxylist)
+    else:
+        return {}
+
+
+init()

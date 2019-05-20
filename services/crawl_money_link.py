@@ -2,26 +2,24 @@
 
 from services.parser.html_req import HtmlRequests
 from services.store.mongo import MongodbAPI
-
 import re
 from datetime import datetime
-url = "https://ww2.money-link.com.tw/TWStock/StockTick.aspx?SymId=%d#SubMain"
 
-retry = 5
+MONEYLINKURL = "https://ww2.money-link.com.tw/TWStock/StockTick.aspx?SymId=%s#SubMain"
 
 
 class Money_link():
     def __init__(self):
         self.mongo = MongodbAPI()
 
-    def Start(self, stock_num) -> list:
-        source_url = url % (stock_num)
+    def start(self, stock_num: str) -> list:
+        source_url = MONEYLINKURL % (stock_num)
         return self.parser(stock_num, source_url)
 
     def parser(self, stock_num, url) -> list:
         daily = []
         htmlparser = HtmlRequests()
-        tree = htmlparser.get_sourcehtml(url)
+        tree = htmlparser.get_html(url)
         if tree == None:
             return daily
         now = datetime.now()
@@ -47,7 +45,8 @@ class Money_link():
             if self.mongo.CheckExists("Transaction_details", str(stock_num)+"@"+date.isoformat()):
                 continue
             daily.append({
-                '_id': str(stock_num)+"@"+date.isoformat(),
+                '_id': stock_num+"@"+date.isoformat(),
+                'stock': int(stock_num),
                 'date': date,
                 'buying': float(buying),
                 'selling': float(selling),

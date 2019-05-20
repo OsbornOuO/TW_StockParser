@@ -2,10 +2,13 @@
 
 from pymongo import MongoClient
 
+MONGOCONNECTIONSTR = "mongodb://python-stock:bNMbTAddsZEwpVRI@amazondata-shard-00-00-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-01-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-02-7op9t.gcp.mongodb.net:27017/TWStock?ssl=true&replicaSet=AmazonData-shard-0&authSource=admin"
+
 
 class MongodbAPI(object):
     def __init__(self):
-        connection = MongoClient("mongodb://python-stock:bNMbTAddsZEwpVRI@amazondata-shard-00-00-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-01-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-02-7op9t.gcp.mongodb.net:27017/TWStock?ssl=true&replicaSet=AmazonData-shard-0&authSource=admin")
+        connection = MongoClient(
+            MONGOCONNECTIONSTR, maxPoolSize=100, waitQueueMultiple=50, waitQueueTimeoutMS=1000)
         db = connection['TWStock']
         self.proxy_collection = db.proxy
         self.realtime = db.Realtime_data
