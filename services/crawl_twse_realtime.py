@@ -15,22 +15,32 @@ class TWSE_realtime():
         self.stock_num = stock_num
         self.htmlreq = HtmlRequests()
         self.req = self.htmlreq.get_session(SESSIONURL)
+        now = datetime.now()
+        self.stop_date = datetime(now.year, now.month, now.day, 13, 30, 10)
 
     def start(self):
         self.crawl()
 
     def crawl(self):
-        now = int(time.time()) * 1000
+        now = datetime.now()
+        if now < self.stop_date:
+            threading.Timer(5.0, self.crawl).start()
+        now_time = int(time.time()) * 1000
         source_url = TWSEREALTIMEURL.format(
-            stock_num=self.stock_num, time=now)
+            stock_num=self.stock_num, time=now_time)
         json_data = self.htmlreq.get_json(self.req, source_url)
         data = self.parser(json_data)
+        if data == None:
+            return
         e = self.mongo.CheckExists('Realtime_data', data.get('_id', None))
         if e == False:
+            print(data.get("_id"))
             self.mongo.Insert_Data_To("Realtime_data", data)
 
     def parser(self, j: json):
         # Process best result
+        if len(j['msgArray']) == 0:
+            return None
         data = j['msgArray'][0]
 
         def _split_best(d):

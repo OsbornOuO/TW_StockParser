@@ -19,7 +19,7 @@ class Crawl_Proxy(object):
 
     def start(self):
         data = self.mongo.Get_Data_From("proxy", {'id': 0})
-        if data is not None and datetime.now()-timedelta(hours=6) < data["update_date"]:
+        if data is not None and datetime.now()-timedelta(hours=3) < data["update_date"]:
             return
         self.mongo.DropAll("proxy")
         proxy_ip = self.paresrHTML()

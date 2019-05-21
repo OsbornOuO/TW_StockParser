@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 
 MONGOCONNECTIONSTR = "mongodb://python-stock:bNMbTAddsZEwpVRI@amazondata-shard-00-00-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-01-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-02-7op9t.gcp.mongodb.net:27017/TWStock?ssl=true&replicaSet=AmazonData-shard-0&authSource=admin"
 
@@ -21,23 +21,47 @@ class MongodbAPI(object):
 
     def Insert_Data_To(self, collection_name, data):
         if collection_name is "proxy":
-            self.proxy_collection.insert_one(data)
+            try:
+                self.proxy_collection.insert_one(data)
+            except errors.DuplicateKeyError as e:
+                print("_id exists")
         elif collection_name is "Realtime_data":
-            self.realtime.insert_one(data)
+            try:
+                self.realtime.insert_one(data)
+            except errors.DuplicateKeyError as e:
+                print("_id exists")
         elif collection_name is "Daily_data":
-            self.daily.insert_one(data)
+            try:
+                self.daily.insert_one(data)
+            except errors.DuplicateKeyError as e:
+                print("_id exists")
         elif collection_name is "Transaction_details":
-            self.Transaction_details.insert_one(data)
+            try:
+                self.Transaction_details.insert_one(data)
+            except errors.DuplicateKeyError as e:
+                print("_id exists")
 
     def Insert_Many_Data_To(self, collection_name, data):
         if collection_name is "proxy":
-            self.proxy_collection.insert_many(data)
+            try:
+                self.proxy_collection.insert_many(data)
+            except Exception as e:
+                print("Insert Many data to mongo, error : %s" % (e.args[0]))
         elif collection_name is "Realtime_data":
-            self.realtime.insert_many(data)
+            try:
+                self.realtime.insert_many(data)
+            except Exception as e:
+                print("Insert Many data to mongo, error : %s" % (e.args[0]))
         elif collection_name is "Daily_data":
-            self.daily.insert_many(data)
+            try:
+                self.daily.insert_many(data)
+            except Exception as e:
+                print("Insert Many data to mongo, error : %s" % (e.args[0]))
         elif collection_name is "Transaction_details":
-            self.Transaction_details.insert_many(data)
+            try:
+                self.Transaction_details.insert_many(data)
+            except Exception as e:
+                print("Insert Many data to mongo, error : %s" % (e.args[0]))
 
     def DropAll(self, collection_name):
         if collection_name is "proxy":
@@ -50,7 +74,7 @@ class MongodbAPI(object):
 
     def Update_One(self, collection_name, key, value):
         if collection_name is "proxy":
-            self.proxy_collection.update_one(key, value)
+            self.proxy_collection.update(key, value, upsert=False)
         pass
 
     def CheckExists(self, collection_name, value):
