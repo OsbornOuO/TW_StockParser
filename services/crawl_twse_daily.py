@@ -5,6 +5,8 @@ import time
 import json
 import threading
 import requests
+import logging
+
 SESSIONURL = 'http://mis.twse.com.tw/stock/index.jsp'
 TWSEREALTIMEURL = "http://www.twse.com.tw/exchangeReport/STOCK_DAY?date={time}&stockNo={stock_num}"
 
@@ -27,6 +29,7 @@ class TWSE_daily():
         self.crawl(now_year, now_month)
 
     def crawl(self, year, month):
+        logging.debug("%s/%s" % (year, month))
         source_url = TWSEREALTIMEURL.format(
             stock_num=self.stock_num, time="%d%02d01" % (year, month))
         json_data = self.htmlreq.get_json(self.req, source_url)
@@ -34,28 +37,23 @@ class TWSE_daily():
             self.retry += 1
             self.crawl(year, month)
         data = self.parser(json_data.get('data', None))
-        try:
-            if len(data) > 0:
-                print("Insert Daily data %s@%s-%s" %
-                      (self.stock_num, year, month))
-                self.mongo.Insert_Many_Data_To("Daily_data", data)
+        if len(data) > 0:
+            for i in range(5):
+                err = self.mongo.Insert_Many_Data_To("Daily_data", data)
+                if err == True:
+                    logging.info("Insert Daily data %s@%s-%s" %
+                                 (self.stock_num, year, month))
+                    break
             else:
-                print("Insert Daily data is exists %s@%s-%s" %
-                      (self.stock_num, year, month))
-        except:
-            if self.retry < 5:
-                self.retry += 1
-                self.crawl(year, month)
-            print("Stop crawl Daily data, stock: %s" % (self.stock_num))
+                logging.error("Fail, Insert Daily data to Mongo,id: %s@%s-%s" %
+                              (self.stock_num, year, month))
+        date = self._get_next_date(year, month)
+        if date['year'] >= self.now_date.year and date['month'] > self.now_date.month:
+            logging.info("Done crawl Daily data , %s@%s/%s" %
+                         (self.stock_num, date['year'], date['month']))
             return
-        else:
-            date = self._get_next_date(year, month)
-            if date['year'] >= self.now_date.year and date['month'] > self.now_date.month:
-                print("Insert stop Daily data , %s@%s/%s" %
-                      (self.stock_num, date['year'], date['month']))
-                return
-            self.retry = 0
-            self.crawl(date["year"], date["month"])
+        # Start to crawl new year, month
+        self.crawl(date["year"], date["month"])
 
     def _convert_date(self, date):
         """Convert '106/05/01' to '2017/05/01'"""
@@ -73,6 +71,8 @@ class TWSE_daily():
             e = self.mongo.CheckExists(
                 "Daily_data", _id)
             if e:
+                logging.debug("Insert Daily data ,id :%s exists" %
+                              (_id))
                 continue
             try:
                 data.append({
@@ -89,7 +89,7 @@ class TWSE_daily():
                     'transaction': int(item[8].replace(',', ''))
                 })
             except Exception as e:
-                print("daily data fail :", item, e)
+                logging.error("daily data fail :{} {}" % (item, e))
                 continue
         return data
 

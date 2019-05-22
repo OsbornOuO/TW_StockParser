@@ -8,6 +8,7 @@ import requests
 import re
 import math
 from datetime import datetime, timedelta
+import logging
 
 CYBERSYNDROME = "http://www.cybersyndrome.net/search.cgi?q=&a=ABC&f=d&s=new&n=500"
 
@@ -20,7 +21,9 @@ class Crawl_Proxy(object):
     def start(self):
         data = self.mongo.Get_Data_From("proxy", {'id': 0})
         if data is not None and datetime.now()-timedelta(hours=3) < data["update_date"]:
+            logging.info("Use old proxies")
             return
+        logging.info("start crawl proxy")
         self.mongo.DropAll("proxy")
         proxy_ip = self.paresrHTML()
         self.mongo.Insert_Data_To("proxy", {
@@ -28,7 +31,7 @@ class Crawl_Proxy(object):
             "iptable": proxy_ip,
             "update_date": datetime.now()
         })
-        print("add", len(proxy_ip), "ip")
+        logging.info("add %04d ip" % (len(proxy_ip)))
 
     def paresrHTML(self):
         p = HtmlRequests()

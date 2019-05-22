@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 import json
 import threading
+import logging
 
 SESSIONURL = 'http://mis.twse.com.tw/stock/index.jsp'
 TWSEREALTIMEURL = "http://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_{stock_num}.tw&json=1&delay=0&_={time}"
@@ -34,8 +35,15 @@ class TWSE_realtime():
             return
         e = self.mongo.CheckExists('Realtime_data', data.get('_id', None))
         if e == False:
-            print(data.get("_id"))
-            self.mongo.Insert_Data_To("Realtime_data", data)
+            for i in range(5):
+                err = self.mongo.Insert_Data_To("Realtime_data", data)
+                if err:
+                    logging.info("Insert realtime data to mongo, id:%s" %
+                                 (data.get("_id")))
+                    return
+            else:
+                logging.error(
+                    "Fail to insert realtime data to mongo, id:%s" % (data.get("_id")))
 
     def parser(self, j: json):
         # Process best result

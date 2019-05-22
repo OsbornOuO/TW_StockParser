@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
 
-import requests
 from lxml import etree
 from lxml import html
+from store.proxy import get_proxy, delete_proxy
+from fake_useragent import UserAgent
+
+import requests
 import random
 import time
-from store.proxy import get_proxy, delete_proxy
+import logging
 
 
 class HtmlRequests():
+    def __init__(self):
+        self.ua = UserAgent(use_cache_server=False)
+
     def get_html(self, source_url):
         r = self.http_requests(requests, source_url)
         return html.fromstring(r.text)
@@ -19,14 +25,20 @@ class HtmlRequests():
                 if r.status_code == 200:
                     return html.fromstring(r.text)
         else:
-            print("Fail to get %s" % (source_url))
+            logging.error("Fail to get %s" % (source_url))
 
     def get_json(self, req, source_url: str) -> dict:
         data = self.http_requests(req, source_url)
         if data == None:
             return {}
         else:
-            return data.json()
+            try:
+                j = data.json()
+                return j
+            except Exception as e:
+                logging.error(
+                    "Fail response -> json,url:%s, status_code:%d, err : %s " % (data.url, data.status_code, e))
+                self.get_json(req, source_url)
 
     def get_session(self, source_url: str) -> object:
         req = requests.Session()
@@ -38,11 +50,11 @@ class HtmlRequests():
                 if r.status_code == 200:
                     return req
             except Exception as e:
-                print(e)
+                logging.warn("Can't get session, err:%s" % (e))
                 delete_proxy(proxy)
                 continue
         else:
-            print("Can't get session from %s " % (source_url))
+            logging.error("Can't get session from %s " % (source_url))
 
     def http_requests(self, req: requests, url: str):
         for i in range(10):
@@ -52,9 +64,10 @@ class HtmlRequests():
                 headers = proxy.get('headers', None)
                 headers.update({
                     'Connection': 'close',
-                    'HTTP_CONNECTION': 'close'
+                    'HTTP_CONNECTION': 'close',
+                    'User-Agent': self.ua.random
                 })
-                sleep = 0.5 + random.uniform(0.1, 0.5)
+                sleep = 0.5 + random.uniform(0.5, 1)
                 with req.get(url,
                              timeout=30,
                              proxies=proxy.get('ip', None),
@@ -63,13 +76,9 @@ class HtmlRequests():
                         time.sleep(sleep)
                         return r
                 time.sleep(sleep)
-            except requests.ReadTimeout as e:
-                delete_proxy(proxy)
-            except requests.TooManyRedirects as e:
-                delete_proxy(proxy)
             except Exception as e:
-                print(e)
+                delete_proxy(proxy)
                 continue
         else:
-            print("Fail to get %s" % (url))
+            logging.error("Fail to get %s" % (url))
             return None

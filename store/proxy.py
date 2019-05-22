@@ -2,6 +2,7 @@ from .mongo import MongodbAPI
 from random import choice
 from datetime import datetime
 import threading
+import logging
 
 _proxylist = []
 lock = threading.RLock()
@@ -16,9 +17,10 @@ def init():
                 'proxy', {'id': 0})["iptable"]
             break
         except Exception as e:
+            logging.warn("get proxy error:%s" % (e))
             continue
     else:
-        print("Get Proxy list from mongo fail")
+        logging.error("Get Proxy list from mongo fail")
 
 
 def get_proxy() -> dict:
@@ -41,13 +43,13 @@ def delete_proxy(proxy) -> bool:
         lock.acquire()
         _proxylist.remove(proxy)
         lock.release()
-        # print('delete proxy IP: %s' % (proxy.get('ip')))
         return True
 
 
 def close_proxy():
     m = MongodbAPI()
     global _proxylist
+    logging.info("Update proxy list to mongo , length :%d" % (len(_proxylist)))
     m.Update_One('proxy', {
         'id': 0
     }, {
