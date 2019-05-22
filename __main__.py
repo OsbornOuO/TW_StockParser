@@ -72,7 +72,7 @@ def main():
             thread_num = len(stocks)
             for i in range(thread_num):
                 threads.append(threading.Thread(
-                    target=twse_daily, args=(stocks[i], 2019, 1)))
+                    target=twse_daily, args=(stocks[i], 2007, 1)))
                 threads[i].start()
             for i in range(thread_num):
                 threads[i].join()

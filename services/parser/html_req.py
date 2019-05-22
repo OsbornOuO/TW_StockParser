@@ -37,15 +37,15 @@ class HtmlRequests():
                 return j
             except Exception as e:
                 logging.error(
-                    "Fail response -> json,url:%s, status_code:%d, err : %s " % (data.url, data.status_code, e))
-                self.get_json(req, source_url)
+                    "Fail response -> json,url:%s, status_code:%d,reponse :%s , err : %s " % (data.url, data.text, data.status_code, e))
+                return {}
 
     def get_session(self, source_url: str) -> object:
         req = requests.Session()
         for i in range(10):
             try:
                 proxy = get_proxy()
-                r = req.get(source_url, timeout=15,
+                r = req.get(source_url, timeout=30,
                             proxies=proxy["ip"], headers=proxy["headers"])
                 if r.status_code == 200:
                     return req
