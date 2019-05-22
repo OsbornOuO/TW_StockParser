@@ -5,7 +5,7 @@ from lxml import etree
 from lxml import html
 import random
 import time
-from services.store.proxy import get_proxy, delete_proxy
+from store.proxy import get_proxy, delete_proxy
 
 
 class HtmlRequests():

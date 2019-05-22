@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from services.crawl_proxy import Crawl_Proxy
-from services.crawl_twse import parserTWStock
-from services.store.mongo import MongodbAPI
 from services.crawl_money_link import Money_link
 from services.crawl_twse_realtime import TWSE_realtime
 from services.crawl_twse_daily import TWSE_daily
-from services.store.proxy import close_proxy
+from store.proxy import close_proxy
+from store.mongo import MongodbAPI
 
 import sys
 import getopt

@@ -2,7 +2,7 @@
 
 from lxml import etree
 from lxml import html
-from .store.mongo import MongodbAPI
+from store.mongo import MongodbAPI
 from .parser.html_req import HtmlRequests
 import requests
 import re
