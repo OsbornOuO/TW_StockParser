@@ -37,7 +37,8 @@ class TWSE_daily():
             self.retry += 1
             self.crawl(year, month)
         data = self.parser(json_data.get('data', None))
-        if len(data) > 0:
+
+        if data != None and len(data) > 0:
             for i in range(5):
                 err = self.mongo.Insert_Many_Data_To("Daily_data", data)
                 if err == True:
