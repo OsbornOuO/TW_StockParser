@@ -32,6 +32,7 @@ def get_proxy() -> dict:
         lock.release()
         return tmp
     else:
+        logging.warn("Start to use local ip")
         lock.release()
         return {}
 
