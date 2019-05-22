@@ -33,9 +33,10 @@ class TWSE_daily():
         source_url = TWSEREALTIMEURL.format(
             stock_num=self.stock_num, time="%d%02d01" % (year, month))
         json_data = self.htmlreq.get_json(self.req, source_url)
-        if json_data == {}:
+        if json_data == {} and self.retry < 5:
             self.retry += 1
             self.crawl(year, month)
+        self.retry = 0
         data = self.parser(json_data.get('data', None))
 
         if data != None and len(data) > 0:
