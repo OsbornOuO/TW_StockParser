@@ -37,7 +37,7 @@ class HtmlRequests():
                 return j
             except Exception as e:
                 logging.error(
-                    "Fail response -> json,url:%s, status_code:%d,reponse :%s , err : %s " % (data.url, data.text, data.status_code, e))
+                    "Fail response -> json,url:%s, status_code:%d, reponse :%s , err : %s " % (data.url, data.status_code, data.text, e))
                 return {}
 
     def get_session(self, source_url: str) -> object:
