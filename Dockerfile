@@ -1,9 +1,9 @@
-FROM python:3.7-alpine as base
+FROM python:3.7-stretch
 
-RUN mkdir /install
-WORKDIR /install
-COPY requirements.txt /requirements.txt
-RUN pip install --install-option="--prefix=/install" -r /requirements.txt
+RUN mkdir /src
+WORKDIR /src
+COPY . .
+RUN pip install -r requirements.txt
 CMD ["python","__main__.py","-d"]
 
 # FROM base as builder
