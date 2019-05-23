@@ -3,6 +3,7 @@
 from services.parser.html_req import HtmlRequests
 from store.mongo import MongodbAPI
 import re
+import time
 from datetime import datetime
 
 MONEYLINKURL = "https://ww2.money-link.com.tw/TWStock/StockTick.aspx?SymId=%s#SubMain"
@@ -46,7 +47,8 @@ class Money_link():
                 continue
             daily.append({
                 '_id': stock_num+"@"+date.isoformat(),
-                'stock': int(stock_num),
+                'ts': int(time.mktime(date.timetuple())),
+                'stock': stock_num,
                 'date': date,
                 'buying': float(buying),
                 'selling': float(selling),

@@ -58,10 +58,12 @@ class TWSE_realtime():
 
         time = datetime.fromtimestamp(
             int(data['tlong']) / 1000).strftime('%Y-%m-%d %H:%M:%S')
+        date = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
         return {
             "_id": str(self.stock_num) + "@"+time,
             "code": self.stock_num,
-            "time": datetime.strptime(time, '%Y-%m-%d %H:%M:%S'),
+            'ts': int(time.mktime(date.timetuple())),
+            "time": date,
             "latest_trade_price": float(data.get('z', None)),
             "trade_volume": float(data.get('tv', None)),
             "accumulate_trade_volume": float(data.get('v', None)),

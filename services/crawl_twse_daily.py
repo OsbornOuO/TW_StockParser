@@ -36,6 +36,9 @@ class TWSE_daily():
         if json_data == {} and self.retry < 5:
             self.retry += 1
             self.crawl(year, month)
+        else:
+            logging.error("Can't get old daily stock %s@%s-%s" %
+                          (self.stock_num, year, month))
         self.retry = 0
         data = self.parser(json_data.get('data', None))
 
@@ -81,6 +84,7 @@ class TWSE_daily():
                     '_id': _id,
                     'stock': self.stock_num,
                     'date': date,
+                    'ts': int(time.mktime(date.timetuple())),
                     'capacity': int(item[1].replace(',', '')),
                     'turnover': int(item[2].replace(',', '')),
                     'open': self._get_float(item[3]),
