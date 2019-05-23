@@ -47,7 +47,7 @@ class Money_link():
                 continue
             daily.append({
                 '_id': stock_num+"@"+date.isoformat(),
-                'ts': int(time.mktime(date.timetuple())),
+                'ts': int(date.timestamp()),
                 'stock': stock_num,
                 'date': date,
                 'buying': float(buying),

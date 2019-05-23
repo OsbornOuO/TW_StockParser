@@ -19,9 +19,15 @@ def money_link(m, ml, stock: list):
     logging.info("start to parser stock : %s" % (stock))
     data = ml.start(stock)
     if len(data) is not 0:
-        logging.info("Insert daily detail stock:%s, count : %d" %
-                     (stock, len(data)))
-        m.Insert_Many_Data_To("Transaction_details", data)
+        for i in range(5):
+            err = m.Insert_Many_Data_To("Transaction_details", data)
+            if err:
+                logging.info("Insert daily detail stock:%s, count : %d" %
+                             (stock, len(data)))
+                break
+            else:
+                logging.warning(
+                    "Fail to Insert daily detail stock:%s , retry :%d" % (stock, i+1))
 
 
 def twse_realtime(stock_num):
