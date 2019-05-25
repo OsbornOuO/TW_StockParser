@@ -67,7 +67,7 @@ class HtmlRequests():
                     'HTTP_CONNECTION': 'close',
                     'User-Agent': self.ua.random
                 })
-                sleep = 0.5 + random.uniform(0.5, 1)
+                sleep = 3 + random.uniform(2, 4)
                 with req.get(url,
                              timeout=30,
                              proxies=proxy.get('ip', None),
