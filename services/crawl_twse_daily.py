@@ -95,7 +95,7 @@ class TWSE_daily():
                     'transaction': int(item[8].replace(',', ''))
                 })
             except Exception as e:
-                logging.error("daily data fail :{} {}" % (item, e))
+                logging.error("daily data fail :%s %s" % (item, e))
                 continue
         return data
 

@@ -3,6 +3,7 @@ from services.crawl_proxy import Crawl_Proxy
 from services.crawl_money_link import Money_link
 from services.crawl_twse_realtime import TWSE_realtime
 from services.crawl_twse_daily import TWSE_daily
+from services.crawl_legal_person import LegalPerson
 from store.proxy import close_proxy
 from store.mongo import MongodbAPI
 
@@ -97,7 +98,8 @@ def main():
                 threads[i].join()
                 logging.info("Thread Done")
             # 每日交易明細 結束
-
+    lp = LegalPerson('2018', '01', '02')
+    lp.start()
     close_proxy()
 
 
