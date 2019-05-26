@@ -21,27 +21,36 @@ class MongodbAPI(object):
         if collection_name is "proxy":
             return self.proxy_collection.find_one(tag)
 
-    def Insert_Data_To(self, collection_name, data):
+    def Insert_Data_To(self, collection_name, data) -> bool:
         if collection_name is "proxy":
             try:
                 self.proxy_collection.insert_one(data)
+                return True
             except:
                 logging.info("_id exists")
+                return False
         elif collection_name is "Realtime_data":
             try:
                 self.realtime.insert_one(data)
+                return True
             except errors.DuplicateKeyError:
                 logging.info("_id exists")
+                return False
         elif collection_name is "Daily_data":
             try:
                 self.daily.insert_one(data)
+                return True
             except errors.DuplicateKeyError:
                 logging.info("_id exists")
+                return False
         elif collection_name is "Transaction_details":
             try:
                 self.Transaction_details.insert_one(data)
+                return True
             except errors.DuplicateKeyError:
                 logging.info("_id exists")
+                return False
+        return False
 
     def Insert_Many_Data_To(self, collection_name, data) -> bool:
         if collection_name is "proxy":

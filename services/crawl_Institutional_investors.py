@@ -11,19 +11,16 @@ TSELEGALPERSON = "http://www.tse.com.tw/fund/T86?response=json&date={date}&selec
 
 
 class Institutional_investors ():
-    def __init__(self, year, month, day):
+    def __init__(self, date: datetime):
         self.mongo = MongodbAPI()
         self.htmlreq = HtmlRequests()
-        self._year = year
-        self._month = month
-        self._day = day
+        self.__date = date
         pass
 
     def start(self):
-        date = "%s%s%s" % (self._year, self._month, self._day)
+        date = self.__date.strftime("%Y%m%d")
         source_url = TSELEGALPERSON.format(date=date)
-        self.__crawl(source_url, "%s/%s/%s" %
-                     (self._year, self._month, self._day))
+        self.__crawl(source_url, self.__date.strftime("%Y/%m/%d"))
         pass
 
     def __crawl(self, url, date):
@@ -32,33 +29,40 @@ class Institutional_investors ():
             logging.debug("This day not Opening :%s" % (date))
             return
         data = self.__parser(json_data, date)
-        self.mongo.Insert_Many_Data_To("stock_information", data)
+        err = self.mongo.Insert_Many_Data_To("stock_information", data)
+        if err:
+            logging.info(
+                "Insert Institutional investors to mongo , date: %s", date)
         pass
 
     def __parser(self, j, date) -> list:
         data = []
         for i in j['data']:
             i = [x.replace(',', '') for x in i]
-            data.append({
-                '_id': str(i[0])+"@"+date,
-                'date': datetime.strptime(date, "%Y/%m/%d"),
-                'stock_num': str(i[0]),
-                'foreign_investment_buy': float(i[2]),
-                'foreign_investment_sell': float(i[3]),
-                'foreign_investment_net_buy_sell': float(i[4]),
-                'foreign_investment_dealer_buy': float(i[5]),
-                'foreign_investment_dealer_sell': float(i[6]),
-                'foreign_investment_dealer_net_buy_sell': float(i[7]),
-                'investment_trust_buy': float(i[8]),
-                'investment_trust_sell': float(i[9]),
-                'investment_trust_net_buy_sell': float(i[10]),
-                'dealer_net_buy_sell': float(i[11]),
-                'dealer_buy(Self-purchase)': float(i[12]),
-                'dealer_sell(Self-purchase)': float(i[13]),
-                'dealer_net_buy_sell(Self-purchase)': float(i[14]),
-                'dealer_buy(Hedging)': float(i[15]),
-                'dealer_sell(Hedging)': float(i[16]),
-                'dealer_net_buy_sell(Hedging)': float(i[17]),
-                'institutional_investors_net_buy_sell': float(i[18]),
-            })
+            try:
+                data.append({
+                    '_id': str(i[0])+"@"+date,
+                    'date': datetime.strptime(date, "%Y/%m/%d"),
+                    'stock_num': str(i[0]),
+                    'foreign_investment_buy': float(i[2]),
+                    'foreign_investment_sell': float(i[3]),
+                    'foreign_investment_net_buy_sell': float(i[4]),
+                    'foreign_investment_dealer_buy': float(i[5]),
+                    'foreign_investment_dealer_sell': float(i[6]),
+                    'foreign_investment_dealer_net_buy_sell': float(i[7]),
+                    'investment_trust_buy': float(i[8]),
+                    'investment_trust_sell': float(i[9]),
+                    'investment_trust_net_buy_sell': float(i[10]),
+                    'dealer_net_buy_sell': float(i[11]),
+                    'dealer_buy(Self-purchase)': float(i[12]),
+                    'dealer_sell(Self-purchase)': float(i[13]),
+                    'dealer_net_buy_sell(Self-purchase)': float(i[14]),
+                    'dealer_buy(Hedging)': float(i[15]),
+                    'dealer_sell(Hedging)': float(i[16]),
+                    'dealer_net_buy_sell(Hedging)': float(i[17]),
+                    'institutional_investors_net_buy_sell': float(i[18]),
+                })
+            except:
+                print(j)
         return data
+#['證券代號', '證券名稱', '外資買進股數', '外資賣出股數', '外資買賣超股數', '投信買進股數', '投信賣出股數', '投信買賣超股數', '自營商買賣超股數', '自營商買進股數', '自營商賣出股數', '三大法人買賣超股數']

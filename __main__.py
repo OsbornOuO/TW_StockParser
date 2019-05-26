@@ -11,6 +11,9 @@ import sys
 import getopt
 import threading
 import logging
+import random
+from datetime import datetime
+from datetime import timedelta
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)-7s : %(message)s', level=logging.INFO)
@@ -42,6 +45,21 @@ def twse_daily(stock_num, year, month):
     td.start()
 
 
+def tse_institutional_investors(date_list):
+    global lock
+
+    while True:
+        lock.acquire()
+        length = len(date_list)
+        if length <= 0:
+            lock.release()
+            break
+        tmp_date = date_list.pop()
+        lock.release()
+        lp = Institutional_investors(tmp_date)
+        lp.start()
+
+
 def main():
     stocks = ['3455', '5443', '8064', '2409', '1504',
               '3535', '2397', '2316', '2392', '2888',
@@ -55,7 +73,7 @@ def main():
 
     opts, args = [], []
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'rDd', [])
+        opts, args = getopt.getopt(sys.argv[1:], 'rDdi', [])
     except getopt.GetoptError as err:
         logging.error(err)
         sys.exit(2)
@@ -98,10 +116,31 @@ def main():
                 threads[i].join()
                 logging.info("Thread Done")
             # 每日交易明細 結束
-    lp = Institutional_investors('2018', '01', '02')
-    lp.start()
-    close_proxy()
+        elif opt == "-i":
+            # 產生 從 2010/1/1 -> now
+            date_list = []
+            start_at = datetime(2010, 1, 1)
+            end_at = datetime.now()
+            step = timedelta(days=1)
+            while start_at <= end_at:
+                date_list.append(start_at.date())
+                start_at += step
+            random.shuffle(date_list)
+
+            threads = []
+            thread_num = 16
+            for i in range(thread_num):
+                threads.append(threading.Thread(
+                    target=tse_institutional_investors, args=(date_list,)))
+                threads[i].start()
+            for i in range(thread_num):
+                threads[i].join()
+                logging.info("Thread Done")
+    else:
+        close_proxy()
 
 
 if __name__ == '__main__':
+    lock = threading.Lock()
+
     main()
