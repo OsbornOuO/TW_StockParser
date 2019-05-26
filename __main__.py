@@ -120,7 +120,8 @@ def main():
             # 產生 從 2010/1/1 -> now
             date_list = []
             start_at = datetime(2012, 5, 2)
-            end_at = datetime(2018, 12, 31)
+            # end_at = datetime(2018, 12, 31)
+            end_at = datetime.now()
             step = timedelta(days=1)
             while start_at <= end_at:
                 date_list.append(start_at.date())

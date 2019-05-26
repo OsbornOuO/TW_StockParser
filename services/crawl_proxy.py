@@ -20,7 +20,7 @@ class Crawl_Proxy(object):
 
     def start(self):
         data = self.mongo.Get_Data_From("proxy", {'id': 0})
-        if data is not None and datetime.now()-timedelta(hours=3) < data["update_date"] and len(data.get('iptable', 0)) > 100:
+        if data is not None and datetime.now()-timedelta(hours=3) < data["update_date"] and data["iptable"] > 250:
             logging.info("Use old proxies")
             return
         logging.info("start crawl proxy")

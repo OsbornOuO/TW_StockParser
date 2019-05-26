@@ -33,6 +33,9 @@ class Institutional_investors ():
         if err:
             logging.info(
                 "Insert Institutional investors to mongo , date: %s", date)
+        else:
+            logging.warn(
+                "Fail to Insert Institutional investors to mongo , url: %s", url)
         pass
 
     def __parser(self, j, date) -> list:
