@@ -3,7 +3,8 @@
 from pymongo import MongoClient, errors
 import logging
 
-MONGOCONNECTIONSTR = "mongodb://python-stock:bNMbTAddsZEwpVRI@amazondata-shard-00-00-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-01-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-02-7op9t.gcp.mongodb.net:27017/TWStock?ssl=true&replicaSet=AmazonData-shard-0&authSource=admin"
+# MONGOCONNECTIONSTR = "mongodb://python-stock:bNMbTAddsZEwpVRI@amazondata-shard-00-00-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-01-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-02-7op9t.gcp.mongodb.net:27017/TWStock?ssl=true&replicaSet=AmazonData-shard-0&authSource=admin"
+MONGOCONNECTIONSTR = "mongodb://chenzhaohui.asuscomm.com:27017/TWStock&authSource=admin"
 
 
 class MongodbAPI(object):

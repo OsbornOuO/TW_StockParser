@@ -14,7 +14,7 @@ def init():
     for _ in range(5):
         try:
             _proxylist = m.Get_Data_From(
-                'proxy', {'id': 0})["iptable"]
+                'proxy', {'_id': 0})["iptable"]
             break
         except Exception as e:
             logging.warn("get proxy error:%s" % (e))
