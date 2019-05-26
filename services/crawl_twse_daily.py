@@ -3,7 +3,6 @@ from store.mongo import MongodbAPI
 from datetime import datetime
 import time
 import json
-import threading
 import requests
 import logging
 

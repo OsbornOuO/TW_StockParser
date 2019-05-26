@@ -15,32 +15,42 @@ class MongodbAPI(object):
         self.realtime = db.Realtime_data
         self.daily = db.Daily_data
         self.Transaction_details = db.Transaction_details
+        self.stock_information = db.stock_information
 
     def Get_Data_From(self, collection_name, tag):
         if collection_name is "proxy":
             return self.proxy_collection.find_one(tag)
 
-    def Insert_Data_To(self, collection_name, data):
+    def Insert_Data_To(self, collection_name, data) -> bool:
         if collection_name is "proxy":
             try:
                 self.proxy_collection.insert_one(data)
-            except errors.DuplicateKeyError as e:
+                return True
+            except:
                 logging.info("_id exists")
+                return False
         elif collection_name is "Realtime_data":
             try:
                 self.realtime.insert_one(data)
-            except errors.DuplicateKeyError as e:
+                return True
+            except errors.DuplicateKeyError:
                 logging.info("_id exists")
+                return False
         elif collection_name is "Daily_data":
             try:
                 self.daily.insert_one(data)
-            except errors.DuplicateKeyError as e:
+                return True
+            except errors.DuplicateKeyError:
                 logging.info("_id exists")
+                return False
         elif collection_name is "Transaction_details":
             try:
                 self.Transaction_details.insert_one(data)
-            except errors.DuplicateKeyError as e:
+                return True
+            except errors.DuplicateKeyError:
                 logging.info("_id exists")
+                return False
+        return False
 
     def Insert_Many_Data_To(self, collection_name, data) -> bool:
         if collection_name is "proxy":
@@ -75,6 +85,14 @@ class MongodbAPI(object):
                 logging.error(
                     "Insert Many data to mongo, error : %s" % (e.args[0]))
                 return False
+        elif collection_name is "stock_information":
+            try:
+                self.stock_information.insert_many(data)
+                return True
+            except Exception as e:
+                logging.error(
+                    "Insert Many data to mongo, error : %s" % (e.args[0]))
+                return False
 
     def DropAll(self, collection_name):
         if collection_name is "proxy":
@@ -89,6 +107,12 @@ class MongodbAPI(object):
         """Update_One provide update"""
         if collection_name is "proxy":
             self.proxy_collection.update(key, value, upsert=False)
+        pass
+
+    def Upsert(self, collection_name, key, value):
+        """Upsert provide upsert"""
+        if collection_name is "proxy":
+            self.proxy_collection.update(key, value, upsert=True)
         pass
 
     def CheckExists(self, collection_name, value) -> bool:
