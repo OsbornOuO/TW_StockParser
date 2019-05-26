@@ -39,7 +39,42 @@ class Institutional_investors ():
         data = []
         for i in j['data']:
             i = [x.replace(',', '') for x in i]
-            try:
+            if len(j['fields']) == 12:
+                data.append({
+                    '_id': str(i[0])+"@"+date,
+                    'date': datetime.strptime(date, "%Y/%m/%d"),
+                    'stock_num': str(i[0]),
+                    'foreign_investment_dealer_buy': float(i[2]),
+                    'foreign_investment_dealer_sell': float(i[3]),
+                    'foreign_investment_dealer_net_buy_sell': float(i[4]),
+                    'institutional_investors_net_buy_sell': float(i[5]),
+                    'investment_trust_buy': float(i[6]),
+                    'investment_trust_sell': float(i[7]),
+                    'investment_trust_net_buy_sell': float(i[8]),
+                    'dealer_buy(Self-purchase)': float(i[9]),
+                    'dealer_sell(Self-purchase)': float(i[10]),
+                    'dealer_net_buy_sell': float(i[11]),
+                })
+            elif len(j['fields']) < 18:
+                data.append({
+                    '_id': str(i[0])+"@"+date,
+                    'date': datetime.strptime(date, "%Y/%m/%d"),
+                    'stock_num': str(i[0]),
+                    'foreign_investment_buy': float(i[2]),
+                    'foreign_investment_sell': float(i[3]),
+                    'foreign_investment_net_buy_sell': float(i[4]),
+                    'foreign_investment_dealer_buy': float(i[5]),
+                    'foreign_investment_dealer_sell': float(i[6]),
+                    'foreign_investment_dealer_net_buy_sell': float(i[7]),
+                    'investment_trust_buy': float(i[8]),
+                    'investment_trust_sell': float(i[9]),
+                    'investment_trust_net_buy_sell': float(i[10]),
+                    'dealer_net_buy_sell': float(i[11]),
+                    'dealer_buy': float(i[12]),
+                    'dealer_sell': float(i[13]),
+                    'institutional_investors_net_buy_sell': float(i[14]),
+                })
+            elif len(j['fields']) == 18:
                 data.append({
                     '_id': str(i[0])+"@"+date,
                     'date': datetime.strptime(date, "%Y/%m/%d"),
@@ -62,7 +97,5 @@ class Institutional_investors ():
                     'dealer_net_buy_sell(Hedging)': float(i[17]),
                     'institutional_investors_net_buy_sell': float(i[18]),
                 })
-            except:
-                print(j)
         return data
 #['證券代號', '證券名稱', '外資買進股數', '外資賣出股數', '外資買賣超股數', '投信買進股數', '投信賣出股數', '投信買賣超股數', '自營商買賣超股數', '自營商買進股數', '自營商賣出股數', '三大法人買賣超股數']
