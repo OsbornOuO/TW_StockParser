@@ -16,7 +16,7 @@ class HtmlRequests():
         self.ua = UserAgent(use_cache_server=False)
 
     def get_html(self, source_url):
-        r = self.http_requests(requests, source_url)
+        r = self.__http_requests(requests, source_url)
         return html.fromstring(r.text)
 
     def get_html_noproxy(self, source_url: str):
@@ -28,14 +28,14 @@ class HtmlRequests():
             logging.error("Fail to get %s" % (source_url))
 
     def get_json(self, req, source_url: str) -> dict:
-        data = self.http_requests(req, source_url)
+        data = self.__http_requests(req, source_url)
         if data == None:
             return {}
         else:
             try:
                 j = data.json()
                 return j
-            except Exception as e:
+            except Exception:
                 logging.error(
                     "Fail response -> json,url: %s , status_code: %d " % (data.url, data.status_code))
                 return {}
@@ -56,7 +56,7 @@ class HtmlRequests():
         else:
             logging.error("Can't get session from %s " % (source_url))
 
-    def http_requests(self, req: requests, url: str):
+    def __http_requests(self, req: requests, url: str):
         for i in range(10):
             proxy = {}
             try:
@@ -67,7 +67,7 @@ class HtmlRequests():
                     'HTTP_CONNECTION': 'close',
                     'User-Agent': self.ua.random
                 })
-                sleep = 0.5 + random.uniform(0.5, 1)
+                sleep = 5 + random.uniform(5, 10)
                 with req.get(url,
                              timeout=30,
                              proxies=proxy.get('ip', None),
@@ -76,7 +76,7 @@ class HtmlRequests():
                         time.sleep(sleep)
                         return r
                 time.sleep(sleep)
-            except Exception as e:
+            except Exception:
                 delete_proxy(proxy)
                 continue
         else:
