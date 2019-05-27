@@ -36,8 +36,8 @@ class TWSE_daily():
             self.retry += 1
             self.crawl(year, month)
         else:
-            logging.error("Can't get old daily stock %s@%s-%s" %
-                          (self.stock_num, year, month))
+            logging.error("Can't get old daily stock %s@%s-%s ,url : %s " %
+                          (self.stock_num, year, month, source_url))
         self.retry = 0
         data = self.parser(json_data.get('data', None))
 
