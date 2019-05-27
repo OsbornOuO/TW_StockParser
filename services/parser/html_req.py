@@ -71,15 +71,14 @@ class HtmlRequests():
                     'HTTP_CONNECTION': 'close',
                     'User-Agent': self.ua.random
                 })
-                sleep = 5 + random.uniform(5, 10)
+                sleep = 10 + random.uniform(0, 10)
+                time.sleep(sleep)
                 with req.get(url,
                              timeout=30,
                              proxies=proxy.get('ip', None),
                              headers=headers) as r:
                     if r.status_code == 200:
-                        time.sleep(sleep)
                         return r
-                time.sleep(sleep)
             except Exception:
                 delete_proxy(proxy)
                 continue

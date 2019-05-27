@@ -73,6 +73,7 @@ def tse_daily_price_earning(date_list):
             lock.release()
             break
         tmp_date = date_list.pop()
+        logging.info("date list last: %d", len(date_list))
         lock.release()
         dsi = Daily_stock_info(tmp_date)
         dsi.start()
@@ -80,7 +81,7 @@ def tse_daily_price_earning(date_list):
 
 def create_random_date():
     date_list = []
-    start_at = datetime(2012, 5, 2)
+    start_at = datetime(2010, 1, 1)
     # end_at = datetime(2018, 12, 31)
     end_at = datetime.now()
     step = timedelta(days=1)
@@ -188,6 +189,7 @@ def main():
         for i in range(thread_num):
             threads[i].join()
             logging.info("Thread Done")
+
     close_proxy()
 
 

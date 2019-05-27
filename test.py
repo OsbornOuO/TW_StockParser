@@ -21,4 +21,6 @@ if __name__ == '__main__':
     # t2.start()
     # t1.join()
     # t2.join()
+    if "+" in "<p style= color:red>+</p>":
+        print("?")
     print(len("9941"))
