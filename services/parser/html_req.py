@@ -15,7 +15,11 @@ class HtmlRequests():
     def __init__(self):
         self.ua = UserAgent(use_cache_server=False)
 
-    def get_html(self, source_url):
+    def get_html_source(self, source_url: str):
+        r = self.__http_requests(requests, source_url)
+        return r.text
+
+    def get_html(self, source_url: str):
         r = self.__http_requests(requests, source_url)
         return html.fromstring(r.text)
 

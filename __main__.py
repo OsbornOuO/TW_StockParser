@@ -4,8 +4,11 @@ from services.crawl_money_link import Money_link
 from services.crawl_twse_realtime import TWSE_realtime
 from services.crawl_twse_daily import TWSE_daily
 from services.crawl_Institutional_investors import Institutional_investors
+from services.crawl_daily_price_earning import Daily_stock_info
 from store.proxy import close_proxy
 from store.mongo import MongodbAPI
+
+import argparse
 
 import sys
 import getopt
@@ -60,6 +63,43 @@ def tse_institutional_investors(date_list):
         lp.start()
 
 
+def tse_daily_price_earning(date_list):
+    global lock
+
+    while True:
+        lock.acquire()
+        length = len(date_list)
+        if length <= 0:
+            lock.release()
+            break
+        tmp_date = date_list.pop()
+        lock.release()
+        dsi = Daily_stock_info(tmp_date)
+        dsi.start()
+
+
+def create_random_date():
+    date_list = []
+    start_at = datetime(2012, 5, 2)
+    # end_at = datetime(2018, 12, 31)
+    end_at = datetime.now()
+    step = timedelta(days=1)
+    while start_at <= end_at:
+        date_list.append(start_at.date())
+        start_at += step
+    random.shuffle(date_list)
+    return date_list
+
+
+def _build_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-d", help="Crawl transaction details", action='store_true')
+    parser.add_argument(
+        "-ep", help="Crawl price and earning", action='store_true')
+    return parser
+
+
 def main():
     stocks = ['3455', '5443', '8064', '2409', '1504',
               '3535', '2397', '2316', '2392', '2888',
@@ -71,75 +111,84 @@ def main():
     cp = Crawl_Proxy()
     cp.start()
 
-    opts, args = [], []
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], 'rDdi', [])
-    except getopt.GetoptError as err:
-        logging.error(err)
-        sys.exit(2)
-    for opt, args in opts:
-        if opt in ("-r"):
-            # Realtime Parser End
-            logging.info("start realtime parser")
-            threads = []
-            thread_num = len(stocks)
-            for i in range(thread_num):
-                threads.append(threading.Thread(
-                    target=twse_realtime, args=(stocks[i],)))
-                threads[i].start()
-            for i in range(thread_num):
-                threads[i].join()
-                logging.info("Thread Done")
-            # Realtime Parser End
-        elif opt == "-D":
-            logging.info("start daily parser")
-            threads = []
-            thread_num = len(stocks)
-            for i in range(thread_num):
-                threads.append(threading.Thread(
-                    target=twse_daily, args=(stocks[i], 2019, 5)))
-                threads[i].start()
-            for i in range(thread_num):
-                threads[i].join()
-                logging.info("Thread Done")
-        elif opt == "-d":
-            # 每日交易明細
-            logging.info("start daily detail stock")
-            threads = []
-            thread_num = len(stocks)
-            ml = Money_link()
-            for i in range(thread_num):
-                threads.append(threading.Thread(
-                    target=money_link, args=(m, ml, stocks[i],)))
-                threads[i].start()
-            for i in range(thread_num):
-                threads[i].join()
-                logging.info("Thread Done")
-            # 每日交易明細 結束
-        elif opt == "-i":
-            # 產生 從 2010/1/1 -> now
-            date_list = []
-            start_at = datetime(2012, 5, 2)
-            # end_at = datetime(2018, 12, 31)
-            end_at = datetime.now()
-            step = timedelta(days=1)
-            while start_at <= end_at:
-                date_list.append(start_at.date())
-                start_at += step
-            random.shuffle(date_list)
+    # opts, args = [], []
+    # try:
+    #     opts, args = getopt.getopt(sys.argv[1:], 'rDdipe', [])
+    # except getopt.GetoptError as err:
+    #     logging.error(err)
+    #     sys.exit(2)
+    # for opt, args in opts:
+    #     if opt in ("-r"):
+    #         # Realtime Parser End
+    #         logging.info("start realtime parser")
+    #         threads = []
+    #         thread_num = len(stocks)
+    #         for i in range(thread_num):
+    #             threads.append(threading.Thread(
+    #                 target=twse_realtime, args=(stocks[i],)))
+    #             threads[i].start()
+    #         for i in range(thread_num):
+    #             threads[i].join()
+    #             logging.info("Thread Done")
+    #         # Realtime Parser End
+    #     elif opt == "-D":
+    #         logging.info("start daily parser")
+    #         threads = []
+    #         thread_num = len(stocks)
+    #         for i in range(thread_num):
+    #             threads.append(threading.Thread(
+    #                 target=twse_daily, args=(stocks[i], 2007, 1)))
+    #             threads[i].start()
+    #         for i in range(thread_num):
+    #             threads[i].join()
+    #             logging.info("Thread Done")
+    #     elif opt == "-d":
+    #
+    #     elif opt == "-i":
+    #         date_list = create_random_date()
+    #         threads = []
+    #         thread_num = 16
+    #         for i in range(thread_num):
+    #             threads.append(threading.Thread(
+    #                 target=tse_institutional_investors, args=(date_list,)))
+    #             threads[i].start()
+    #         for i in range(thread_num):
+    #             threads[i].join()
+    #             logging.info("Thread Done")
+    #     elif '-p' in opt and '-e' in opt:
 
-            threads = []
-            thread_num = 16
-            for i in range(thread_num):
-                threads.append(threading.Thread(
-                    target=tse_institutional_investors, args=(date_list,)))
-                threads[i].start()
-            for i in range(thread_num):
-                threads[i].join()
-                logging.info("Thread Done")
-    else:
-        close_proxy()
+    # else:
+    #     close_proxy()
 
+    cli_parser = _build_parser()
+    args = cli_parser.parse_args()
+
+    if args.d:
+        # 每日交易明細
+        logging.info("start daily detail stock")
+        threads = []
+        thread_num = len(stocks)
+        ml = Money_link()
+        for i in range(thread_num):
+            threads.append(threading.Thread(
+                target=money_link, args=(m, ml, stocks[i],)))
+            threads[i].start()
+        for i in range(thread_num):
+            threads[i].join()
+            logging.info("Thread Done")
+        # 每日交易明細 結束
+    if args.ep:
+        date_list = create_random_date()
+        threads = []
+        thread_num = 16
+        for i in range(thread_num):
+            threads.append(threading.Thread(
+                target=tse_daily_price_earning, args=(date_list,)))
+            threads[i].start()
+        for i in range(thread_num):
+            threads[i].join()
+            logging.info("Thread Done")
+    close_proxy()
 
 if __name__ == '__main__':
     lock = threading.Lock()

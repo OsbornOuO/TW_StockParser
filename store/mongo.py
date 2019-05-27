@@ -3,8 +3,8 @@
 from pymongo import MongoClient, errors
 import logging
 
-# MONGOCONNECTIONSTR = "mongodb://python-stock:bNMbTAddsZEwpVRI@amazondata-shard-00-00-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-01-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-02-7op9t.gcp.mongodb.net:27017/TWStock?ssl=true&replicaSet=AmazonData-shard-0&authSource=admin"
-MONGOCONNECTIONSTR = "mongodb://chenzhaohui.asuscomm.com:27017/TWStock&authSource=admin"
+MONGOCONNECTIONSTR = "mongodb://python-stock:bNMbTAddsZEwpVRI@amazondata-shard-00-00-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-01-7op9t.gcp.mongodb.net:27017,amazondata-shard-00-02-7op9t.gcp.mongodb.net:27017/TWStock?ssl=true&replicaSet=AmazonData-shard-0&authSource=admin"
+# MONGOCONNECTIONSTR = "mongodb://chenzhaohui.asuscomm.com:27017/TWStock&authSource=admin"
 
 
 class MongodbAPI(object):
@@ -17,6 +17,7 @@ class MongodbAPI(object):
         self.daily = db.Daily_data
         self.Transaction_details = db.Transaction_details
         self.stock_information = db.stock_information
+        self.stock_daily_info = db.stock_daily_info
 
     def Get_Data_From(self, collection_name, tag):
         if collection_name is "proxy":
@@ -89,6 +90,14 @@ class MongodbAPI(object):
         elif collection_name is "stock_information":
             try:
                 self.stock_information.insert_many(data)
+                return True
+            except Exception as e:
+                logging.error(
+                    "Insert Many data to mongo, error : %s" % (e.args[0]))
+                return False
+        elif collection_name is "stock_daily_info":
+            try:
+                self.stock_daily_info.insert_many(data)
                 return True
             except Exception as e:
                 logging.error(
