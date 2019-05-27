@@ -190,6 +190,7 @@ def main():
             logging.info("Thread Done")
     close_proxy()
 
+
 if __name__ == '__main__':
     lock = threading.Lock()
 
