@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from services.parser.html_req import HtmlRequests
 from store.mongo import MongodbAPI
 from datetime import datetime
