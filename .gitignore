@@ -5,5 +5,4 @@
 */*/*/__pycache__
 *.pyc
 
-ENV
-stock_env
+venv
